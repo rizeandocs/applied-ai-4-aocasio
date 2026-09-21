@@ -27,33 +27,20 @@ class GeneticAlgorithm:
         return fitness_scores
     
     def select_survivors(self, fitness_scores):
-        # STUDENT ASSIGNMENT 3: Implement a better selection mechanism
-        # Current version just takes top 50% - very simple!
-        #
-        # Available information:
-        # - fitness_scores: list of (gatherer, fitness) tuples, sorted by fitness (best first)
-        # - SURVIVAL_RATE: currently 0.05 (top 5% survive)
-        # - len(fitness_scores): total population size
-        #
-        # Alternative selection strategies to consider:
-        # 1. Tournament selection: pick random groups, take best from each
-        # 2. Roulette wheel: probability proportional to fitness
-        # 3. Rank-based: select based on rank, not raw fitness values
-        # 4. Elite + random: guarantee best survive, then random selection
-        # 5. Fitness-proportionate with scaling (linear/exponential)
-        # 6. Hybrid approaches: combine multiple strategies
-        #
-        # Strategy hints:
-        # - Pure elitism (current) can cause premature convergence
-        # - Pure randomness loses good solutions
-        # - Tournament selection often works well (simple + effective)
-        # - Consider selection pressure: too high = less diversity, too low = slow evolution
-        #
-        # Remember: Selection determines which traits get passed to next generation!
-        
-        # Minimal version: just take top 50% of population
-        survival_count = max(1, len(fitness_scores) // 2)  # Top 50%
-        survivors = [gatherer for gatherer, fitness in fitness_scores[:survival_count]]
+        total = len(fitness_scores)
+        survival_count = max(1, int(total // 4))
+
+        elite_count = max(1, survival_count // 5)
+        elites = [g for g, f in fitness_scores[:elite_count]]
+
+        tournament_size = 5
+        survivors = list(elites)
+
+        while len(survivors) < survival_count:
+            contestant = random.sample(fitness_scores, min(tournament_size, total))
+            winner = max(contestant, key=lambda x: x[1])[0]
+            survivors.append(winner)
+
         return survivors
     
     def crossover(self, parent1, parent2):
